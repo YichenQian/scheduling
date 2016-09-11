@@ -8,6 +8,7 @@
 
 package scheduling.scheduling;
 
+import java.io.WriteAbortedException;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -25,6 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.impl.rev160902.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +68,6 @@ public class PathComputeFastFunction implements FastFunction {
 		Topology topology = getTopology();
 		Map<FlowSpec, List<Link>> map = computePathForFlow(topology);
 		writeToDataStore(map);
-		// simulateRead();
 	}
 
 	private Topology getTopology() {
@@ -177,14 +178,14 @@ public class PathComputeFastFunction implements FastFunction {
 		return null;
 	}
 
-	// compute the shortest path according to bandwidth
+	// TODO compute the shortest path according to bandwidth
 	public List<Link> maxBandWidth(Topology topology, String srcs, String dsts) {
 
 		if (topology == null || srcs == null || dsts == null)
 			return null;
 		List<Node> nodes = topology.getNode();
 		List<Link> links = topology.getLink();
-
+		
 		Map<NodeId, List<LinkId>> graph = new HashMap<NodeId, List<LinkId>>();
 		Map<NodeId, Node> nodeMap = new HashMap<NodeId, Node>();
 		Map<LinkId, Link> linkMap = new HashMap<LinkId, Link>();
@@ -255,7 +256,16 @@ public class PathComputeFastFunction implements FastFunction {
 	}
 
 	private void writeToDataStore(Map<FlowSpec, List<Link>> map) {
-
+		InstanceIdentifier<FlowSetPath> flowSetPathIID = InstanceIdentifier.builder(NetworkTopology.class)
+				.child(Topology.class, topologyKey).build();
+		// TODO Transform the Map to FlowSetPath 
+		FlowSetPath flowSetPath = map;
+		////
+		try {
+			fastDataStore.put(LogicalDatastoreType.OPERATIONAL, flowSetPathIID);
+		} catch (WriteAbortedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private static class Tuple {

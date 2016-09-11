@@ -33,7 +33,6 @@ public class RSAFastFunction implements FastFunction {
 	private final static Logger LOG = LoggerFactory.getLogger(RSAFastFunction.class);
 	private FastDataStore fastDataStore = null;
 	private List<FlowSpec> flowList = null;
-	private Map<Link, LinkSim> linkMap = new HashMap<>();
 	private Map<String, List<Link>> flowPathMap = new HashMap<>();
 	private Map<LinkSim, List<String>> linkPathMap = new HashMap<>();
 	private Map<String, List<LinkSim>> pathLinkMap = new HashMap<>();
@@ -64,36 +63,16 @@ public class RSAFastFunction implements FastFunction {
 		this.fastDataStore = dataStore;
 	}
 
-	// private Topology getTopology() {
-	// LOG.info("getTopology started");
-	// InstanceIdentifier<Topology> topologyIID =
-	// InstanceIdentifier.builder(NetworkTopology.class)
-	// .child(Topology.class, topologyKey).build();
-	// Topology topology = null;
-	// try {
-	// topology = fastDataStore.read(LogicalDatastoreType.OPERATIONAL,
-	// topologyIID);
-	// NodeId nodeid = new NodeId("123");
-	// Link link = topology.getLink().get(nodeid);
-	// Metric metric = link.
-	// } catch (ReadFailedException e) {
-	// e.printStackTrace();
-	// }
-	//
-	// return topology;
-	// }
-
 	public void RSA() {
 		getFlowSetPath();
 		preprocessing();
 		aggregationOnly();
 		Set<LinkSim> minimal = mecs();
-		
 		// writeToDatastore(minimal);
 	}
 
 	private void getFlowSetPath() {
-
+		
 	}
 
 	private void preprocessing() {
