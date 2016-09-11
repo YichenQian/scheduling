@@ -1,0 +1,20 @@
+module fast-app-scheduling {
+    yang-version 1;
+    namespace "urn:fast:app:scheduling";
+    prefix "fast-app-scheduling";
+
+    revision "2016-09-02" {
+        description "Initial revision of the FAST application scheduling API";
+    }
+    
+    list flow-set-path{
+    	key flow-spec;
+    	leaf flow-spec{
+    		type string;
+    	}
+  		leaf path{
+  			type string;
+  		}		
+    }
+    
+}
