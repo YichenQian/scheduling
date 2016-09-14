@@ -8,14 +8,15 @@
 
 package scheduling.scheduling;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.Nonnull;
 
 import fast.api.FastSystem;
-import fast.api.UserHints;
-import scheduling.api.FlowSpec;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.flow.set.path.FlowSpec;
+import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.flow.set.path.FlowSpecBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
 
 import org.slf4j.Logger;
@@ -24,7 +25,7 @@ import org.slf4j.LoggerFactory;
 public class SchedulingMain implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(SchedulingMain.class);
-
+    private DataBroker dataBroker = null;
     private FastSystem fast;
 
     /* the ID for the first function instance */
@@ -40,9 +41,15 @@ public class SchedulingMain implements AutoCloseable {
          *
          * But you can just get the FastSystem instance and submit function instances later.
          * */
-        List<FlowSpec> flowList = new ArrayList<>();
         
-        fid = this.fast.submit(new RSAFastFunction(flowList));
+        //create a list of flow
+//        List<FlowSpec> flowSpecs = new ArrayList<>();
+//        FlowSpecBuilder flowSpecBuilder = new FlowSpecBuilder();
+//        flowSpecBuilder.setSrcPort(value)
+//               
+//        List<FlowSpec> flowList = new ArrayList<>();
+//        
+//        fid = this.fast.submit(new RSAFastFunction(flowList));
 
         /*
          * You can also bind your application to a certain event trigger which will then submit
@@ -67,11 +74,11 @@ public class SchedulingMain implements AutoCloseable {
          * You can submit function instances here.
          * */
     	
-    	List<FlowSpec> flowList = new ArrayList<>();
-        RSAFastFunction f = new RSAFastFunction(flowList);
-
-        /* You can set the precedence to make sure the first function instance is always executed first */
-        String[] precedences = { fid };
-        this.fast.submit(f, new UserHints(precedences));
+//    	List<FlowSpec> flowList = new ArrayList<>();
+//        RSAFastFunction f = new RSAFastFunction(flowList);
+//
+//        /* You can set the precedence to make sure the first function instance is always executed first */
+//        String[] precedences = { fid };
+//        this.fast.submit(f, new UserHints(precedences));
     }
 }

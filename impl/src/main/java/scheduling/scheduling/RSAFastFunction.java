@@ -241,35 +241,35 @@ public class RSAFastFunction implements FastFunction {
 	}
 
 	// TODO
-	private void writeToDatastore(Set<LinkSim> minimal) {
-		InstanceIdentifier<Graph> iid = InstanceIdentifier.builder(Graph.class).build();
-		fastDataStore.delete(LogicalDatastoreType.CONFIGURATION, iid);
-		for (LinkSim link : minimal) {
-			InstanceIdentifier<Link> linkIID = InstanceIdentifier.builder(Graph.class)
-					.child(Link.class, new LinkKey(link.id)).build();
-
-			LinkBuilder linkBuilder = new LinkBuilder();
-			linkBuilder.setLinkId(link.id);
-			linkBuilder.setKey(new LinkKey(link.id));
-			linkBuilder.setSource(link.src);
-			linkBuilder.setDestination(link.dst);
-
-			List<Metric> metrics = new ArrayList<>();
-			MetricBuilder bandwidthBuilder = new MetricBuilder();
-			bandwidthBuilder.setMetricName("bandwidth");
-			bandwidthBuilder.setKey(new MetricKey("bandwidth"));
-			bandwidthBuilder.setMetricValue(BigInteger.valueOf(link.bandwidth));
-			metrics.add(bandwidthBuilder.build());
-
-			MetricBuilder hopcountBuilder = new MetricBuilder();
-			hopcountBuilder.setMetricName("hopcount");
-			hopcountBuilder.setKey(new MetricKey("hopcount"));
-			hopcountBuilder.setMetricValue(BigInteger.valueOf(link.hopcount));
-			metrics.add(hopcountBuilder.build());
-			linkBuilder.setMetric(metrics);
-			fastDataStore.put(LogicalDatastoreType.CONFIGURATION, linkIID, linkBuilder.build(), true);
-		}
-	}
+//	private void writeToDatastore(Set<LinkSim> minimal) {
+//		InstanceIdentifier<Graph> iid = InstanceIdentifier.builder(Graph.class).build();
+//		fastDataStore.delete(LogicalDatastoreType.CONFIGURATION, iid);
+//		for (LinkSim link : minimal) {
+//			InstanceIdentifier<Link> linkIID = InstanceIdentifier.builder(Graph.class)
+//					.child(Link.class, new LinkKey(link.id)).build();
+//
+//			LinkBuilder linkBuilder = new LinkBuilder();
+//			linkBuilder.setLinkId(link.id);
+//			linkBuilder.setKey(new LinkKey(link.id));
+//			linkBuilder.setSource(link.src);
+//			linkBuilder.setDestination(link.dst);
+//
+//			List<Metric> metrics = new ArrayList<>();
+//			MetricBuilder bandwidthBuilder = new MetricBuilder();
+//			bandwidthBuilder.setMetricName("bandwidth");
+//			bandwidthBuilder.setKey(new MetricKey("bandwidth"));
+//			bandwidthBuilder.setMetricValue(BigInteger.valueOf(link.bandwidth));
+//			metrics.add(bandwidthBuilder.build());
+//
+//			MetricBuilder hopcountBuilder = new MetricBuilder();
+//			hopcountBuilder.setMetricName("hopcount");
+//			hopcountBuilder.setKey(new MetricKey("hopcount"));
+//			hopcountBuilder.setMetricValue(BigInteger.valueOf(link.hopcount));
+//			metrics.add(hopcountBuilder.build());
+//			linkBuilder.setMetric(metrics);
+//			fastDataStore.put(LogicalDatastoreType.CONFIGURATION, linkIID, linkBuilder.build(), true);
+//		}
+//	}
 
 	@Override
 	public void run() {

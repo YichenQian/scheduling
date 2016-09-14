@@ -8,7 +8,7 @@
 
 package scheduling.api;
 
-public class FlowSpec {
+public class Flow {
 	
 	private String srcIp = null;
 	private String dstIp = null;
@@ -16,7 +16,7 @@ public class FlowSpec {
 	private String dstPort = null;
 	private String protocol = null;
 
-	FlowSpec(String srcIp, String dstIp, String srcPort, String dstPort, String protocol) {
+	Flow(String srcIp, String dstIp, String srcPort, String dstPort, String protocol) {
 		this.srcIp = srcIp;
 		this.dstIp = dstIp;
 		this.srcPort = srcPort;
