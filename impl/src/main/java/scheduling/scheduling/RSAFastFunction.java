@@ -10,7 +10,7 @@ package scheduling.scheduling;
 
 import fast.api.FastDataStore;
 import fast.api.FastFunction;
-import scheduling.api.FlowSpec;
+import javafx.animation.PathTransition;
 import scpsolver.constraints.LinearSmallerThanEqualsConstraint;
 import scpsolver.lpsolver.LinearProgramSolver;
 import scpsolver.lpsolver.SolverFactory;
@@ -23,24 +23,33 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.FlowSetPath;
+import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.flow.set.path.FlowSpec;
+import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.flow.set.path.path.LinkSpec;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.sun.org.apache.bcel.internal.generic.NEW;
 
 public class RSAFastFunction implements FastFunction {
 	private final static Logger LOG = LoggerFactory.getLogger(RSAFastFunction.class);
 	private FastDataStore fastDataStore = null;
 	private List<FlowSpec> flowList = null;
-	private Map<String, List<Link>> flowPathMap = new HashMap<>();
+	private List<FlowSetPath> flowSetPathList = null;
 	private Map<LinkSim, List<String>> linkPathMap = new HashMap<>();
 	private Map<String, List<LinkSim>> pathLinkMap = new HashMap<>();
+	private Map<LinkSpec, List<String>> linkSpecPathMap = new HashMap<>();
 	private static final TopologyKey topologyKey = new TopologyKey(new TopologyId("flow:1"));
 
-	public RSAFastFunction(List<FlowSpec> flowList) {
-		this.flowList = flowList;
-	}
+	// public RSAFastFunction(List<FlowSpec> flowList) {
+	// this.flowList = flowList;
+	// }
 
 	private class LinkSim {
 		public String id;
@@ -72,35 +81,50 @@ public class RSAFastFunction implements FastFunction {
 	}
 
 	private void getFlowSetPath() {
-		
+		InstanceIdentifier<FlowSetPath> flowSetPathIID = InstanceIdentifier.builder(FlowSetPath.class).build();
+		try {
+			flowSetPathList.add(fastDataStore.read(LogicalDatastoreType.OPERATIONAL, flowSetPathIID));
+		} catch (ReadFailedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void preprocessing() {
 
 		// construct linkPathMap
-		for (FlowSpec flow : flowList) {
-			List<LinkSim> list = new ArrayList<>();
-			for (Link l : flowPathMap.get(flow)) {
-				list.add(new LinkSim(l.getLinkId().toString(), l.getSource().toString(), l.getDestination().toString(),
-						1, 1));
+		for (FlowSetPath flowSetPath : flowSetPathList) {
+			List<LinkSim> linkSims = new ArrayList<>();
+			for (LinkSpec l : flowSetPath.getPath().getLinkSpec()) {
+				List<String> paths = null;
+				if (!linkSpecPathMap.containsKey(l)) {
+					paths = new ArrayList<>();
+					paths.add(FlowSetPath2String(flowSetPath));
+				} else {
+					paths = linkSpecPathMap.get(l);
+					paths.add(FlowSetPath2String(flowSetPath));
+				}
+				linkSpecPathMap.put(l, paths);
+				
+				LinkSim linkSim = new LinkSim(l.getLinkId(), l.getSource(), l.getDestination(), 1, 1);
+				linkSims.add(linkSim);
 			}
-			pathLinkMap.put(flow.toString(), list);
+			pathLinkMap.put(FlowSetPath2String(flowSetPath), linkSims);
 		}
 
-		for (String pathID : pathLinkMap.keySet()) {
-			List<LinkSim> path = pathLinkMap.get(pathID);
-			for (LinkSim link : path) {
-				List<String> _paths = null;
-				if (!linkPathMap.containsKey(link)) {
-					_paths = new ArrayList<>();
-					_paths.add(pathID);
-				} else {
-					_paths = linkPathMap.get(link);
-					_paths.add(pathID);
-				}
-				linkPathMap.put(link, _paths);
-			}
+		// LinkSpec to LinkSim
+		for (LinkSpec ls : linkSpecPathMap.keySet()) {
+			// TODO get the bandwidth of the link
+			LinkSim linkSim = new LinkSim(ls.getLinkId(), ls.getSource(), ls.getDestination(), 1, 1);
+			linkPathMap.put(linkSim, linkSpecPathMap.get(ls));
+			
 		}
+	}
+
+	public String FlowSetPath2String(FlowSetPath flowSetPath) {
+		FlowSpec flowSpec = flowSetPath.getFlowSpec();
+		String string = flowSpec.getSrcIp() + "," + flowSpec.getDstIp() + "," + flowSpec.getSrcPort() + ","
+				+ flowSpec.getDstPort() + "," + flowSpec.getProtocol();
+		return string;
 	}
 
 	private void aggregate(LinkSim useful, LinkSim redundant) {
@@ -204,8 +228,7 @@ public class RSAFastFunction implements FastFunction {
 				}
 				i++;
 			}
-			lp.addConstraint(
-					new LinearSmallerThanEqualsConstraint(variable, link.bandwidth, "c" + constraintNum++));
+			lp.addConstraint(new LinearSmallerThanEqualsConstraint(variable, link.bandwidth, "c" + constraintNum++));
 
 		}
 		double[] sol = solver.solve(lp);
@@ -217,38 +240,36 @@ public class RSAFastFunction implements FastFunction {
 		return result;
 	}
 
-	// private void writeToDatastore(Set<LinkSim> minimal) {
-	// InstanceIdentifier<Graph> iid =
-	// InstanceIdentifier.builder(Graph.class).build();
-	// fastDataStore.delete(LogicalDatastoreType.CONFIGURATION, iid);
-	// for (LinkSim link : minimal) {
-	// InstanceIdentifier<Link> linkIID =
-	// InstanceIdentifier.builder(Graph.class)
-	// .child(Link.class, new LinkKey(link.id)).build();
-	//
-	// LinkBuilder linkBuilder = new LinkBuilder();
-	// linkBuilder.setLinkId(link.id);
-	// linkBuilder.setKey(new LinkKey(link.id));
-	// linkBuilder.setSource(link.src);
-	// linkBuilder.setDestination(link.dst);
-	//
-	// List<Metric> metrics = new ArrayList<>();
-	// MetricBuilder bandwidthBuilder = new MetricBuilder();
-	// bandwidthBuilder.setMetricName("bandwidth");
-	// bandwidthBuilder.setKey(new MetricKey("bandwidth"));
-	// bandwidthBuilder.setMetricValue(BigInteger.valueOf(link.bandwidth));
-	// metrics.add(bandwidthBuilder.build());
-	//
-	// MetricBuilder hopcountBuilder = new MetricBuilder();
-	// hopcountBuilder.setMetricName("hopcount");
-	// hopcountBuilder.setKey(new MetricKey("hopcount"));
-	// hopcountBuilder.setMetricValue(BigInteger.valueOf(link.hopcount));
-	// metrics.add(hopcountBuilder.build());
-	// linkBuilder.setMetric(metrics);
-	// fastDataStore.put(LogicalDatastoreType.CONFIGURATION, linkIID,
-	// linkBuilder.build(), true);
-	// }
-	// }
+	// TODO
+	private void writeToDatastore(Set<LinkSim> minimal) {
+		InstanceIdentifier<Graph> iid = InstanceIdentifier.builder(Graph.class).build();
+		fastDataStore.delete(LogicalDatastoreType.CONFIGURATION, iid);
+		for (LinkSim link : minimal) {
+			InstanceIdentifier<Link> linkIID = InstanceIdentifier.builder(Graph.class)
+					.child(Link.class, new LinkKey(link.id)).build();
+
+			LinkBuilder linkBuilder = new LinkBuilder();
+			linkBuilder.setLinkId(link.id);
+			linkBuilder.setKey(new LinkKey(link.id));
+			linkBuilder.setSource(link.src);
+			linkBuilder.setDestination(link.dst);
+
+			List<Metric> metrics = new ArrayList<>();
+			MetricBuilder bandwidthBuilder = new MetricBuilder();
+			bandwidthBuilder.setMetricName("bandwidth");
+			bandwidthBuilder.setKey(new MetricKey("bandwidth"));
+			bandwidthBuilder.setMetricValue(BigInteger.valueOf(link.bandwidth));
+			metrics.add(bandwidthBuilder.build());
+
+			MetricBuilder hopcountBuilder = new MetricBuilder();
+			hopcountBuilder.setMetricName("hopcount");
+			hopcountBuilder.setKey(new MetricKey("hopcount"));
+			hopcountBuilder.setMetricValue(BigInteger.valueOf(link.hopcount));
+			metrics.add(hopcountBuilder.build());
+			linkBuilder.setMetric(metrics);
+			fastDataStore.put(LogicalDatastoreType.CONFIGURATION, linkIID, linkBuilder.build(), true);
+		}
+	}
 
 	@Override
 	public void run() {

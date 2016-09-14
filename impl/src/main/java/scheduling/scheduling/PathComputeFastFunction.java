@@ -9,6 +9,7 @@
 package scheduling.scheduling;
 
 import java.io.WriteAbortedException;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -26,13 +27,20 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.impl.rev160902.*;
+import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.FlowSetPath;
+import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.FlowSetPathBuilder;
+import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.FlowSetPathKey;
+import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.flow.set.path.FlowSpec;
+import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.flow.set.path.Path;
+import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.flow.set.path.PathBuilder;
+import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.flow.set.path.path.LinkSpec;
+import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.flow.set.path.path.LinkSpecBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fast.api.FastDataStore;
 import fast.api.FastFunction;
-import scheduling.api.FlowSpec;
 
 public class PathComputeFastFunction implements FastFunction {
 	private final static Logger LOG = LoggerFactory.getLogger(PathComputeFastFunction.class);
@@ -66,8 +74,8 @@ public class PathComputeFastFunction implements FastFunction {
 	public void run() {
 		LOG.info("run started");
 		Topology topology = getTopology();
-		Map<FlowSpec, List<Link>> map = computePathForFlow(topology);
-		writeToDataStore(map);
+		FlowSetPath flowSetPath = computePathForFlow(topology);
+		writeToDataStore(flowSetPath);
 	}
 
 	private Topology getTopology() {
@@ -84,18 +92,38 @@ public class PathComputeFastFunction implements FastFunction {
 		return topology;
 	}
 
-	// compute the path of all the flows
-	public Map<FlowSpec, List<Link>> computePathForFlow(Topology topology) {
-		if (topology == null){
+	// compute the path of the flow
+	public FlowSetPath computePathForFlow(Topology topology) {
+		if (topology == null) {
 			LOG.info("topology null");
 			return null;
 		}
 		LOG.info("start to compute the path for flow");
-		Map<FlowSpec, List<Link>> map = new HashMap<FlowSpec, List<Link>>();
 		List<Link> path = shortestPath(topology, flow.getSrcIp(), flow.getDstIp());
-		System.out.println("Path computing result:" + path.get(0).getLinkId().toString() + ", " + path.get(1).getLinkId().toString());
-		map.put(flow, path);
-		return map;
+		System.out.println("Path computing result:" + path.get(0).getLinkId().toString() + ", "
+				+ path.get(1).getLinkId().toString());
+		FlowSetPath flowSetPath = Path2FlowSetPath(path);
+		return flowSetPath;
+	}
+
+	public FlowSetPath Path2FlowSetPath(List<Link> path) {
+		List<LinkSpec> linkList = new ArrayList<>();
+		for (Link l : path) {
+			LinkSpecBuilder lsb = new LinkSpecBuilder();
+			lsb.setDestination(l.getDestination().toString());
+			lsb.setLinkId(l.getLinkId().toString());
+			lsb.setSource(l.getSource().toString());
+			LinkSpec ls = lsb.build();
+			linkList.add(ls);
+		}
+		PathBuilder pathBuilder = new PathBuilder();
+		pathBuilder.setLinkSpec(linkList);
+		Path p = pathBuilder.build();
+		FlowSetPathBuilder flowSetPathBuilder = new FlowSetPathBuilder();
+		flowSetPathBuilder.setFlowSpec(flow);
+		flowSetPathBuilder.setPath(p);
+		FlowSetPath flowSetPath = flowSetPathBuilder.build();
+		return flowSetPath;
 	}
 
 	// compute the shortest path according to hop count
@@ -105,9 +133,9 @@ public class PathComputeFastFunction implements FastFunction {
 
 		if (topology == null || srcs == null || dsts == null)
 			return null;
-		
+
 		LOG.info("shortest path started");
-		
+
 		List<Node> nodes = topology.getNode();
 		List<Link> links = topology.getLink();
 
@@ -185,7 +213,7 @@ public class PathComputeFastFunction implements FastFunction {
 			return null;
 		List<Node> nodes = topology.getNode();
 		List<Link> links = topology.getLink();
-		
+
 		Map<NodeId, List<LinkId>> graph = new HashMap<NodeId, List<LinkId>>();
 		Map<NodeId, Node> nodeMap = new HashMap<NodeId, Node>();
 		Map<LinkId, Link> linkMap = new HashMap<LinkId, Link>();
@@ -255,15 +283,12 @@ public class PathComputeFastFunction implements FastFunction {
 		return null;
 	}
 
-	private void writeToDataStore(Map<FlowSpec, List<Link>> map) {
-		InstanceIdentifier<FlowSetPath> flowSetPathIID = InstanceIdentifier.builder(NetworkTopology.class)
-				.child(Topology.class, topologyKey).build();
-		// TODO Transform the Map to FlowSetPath 
-		FlowSetPath flowSetPath = map;
-		////
+	private void writeToDataStore(FlowSetPath flowSetPath) {
+		InstanceIdentifier<FlowSetPath> flowSetPathIID = InstanceIdentifier.builder(FlowSetPath.class,
+				new FlowSetPathKey(flowSetPath.getId())).build();
 		try {
-			fastDataStore.put(LogicalDatastoreType.OPERATIONAL, flowSetPathIID);
-		} catch (WriteAbortedException e) {
+			fastDataStore.put(LogicalDatastoreType.OPERATIONAL, flowSetPathIID, flowSetPath);
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
