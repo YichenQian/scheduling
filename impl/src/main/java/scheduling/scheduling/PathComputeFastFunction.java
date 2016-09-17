@@ -29,13 +29,21 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.FlowSetPath;
 import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.FlowSetPathBuilder;
-import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.FlowSetPathKey;
-import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.flow.set.path.FlowSpec;
-import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.flow.set.path.Path;
-import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.flow.set.path.PathBuilder;
-import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.flow.set.path.path.LinkSpec;
-import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.flow.set.path.path.LinkSpecBuilder;
+//import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.FlowSetPathKey;
+import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.flow.set.path.FlowPath;
+import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.flow.set.path.FlowPathBuilder;
+import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.flow.set.path.FlowPathKey;
+import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.flow.set.path.flow.path.FlowSpec;
+import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.flow.set.path.flow.path.Path;
+import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.flow.set.path.flow.path.PathBuilder;
+//import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.flow.set.flow.path.FlowSpec;
+//import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.flow.set.flow.path.path.Path;
+//import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.flow.set.flow.path.path.PathBuilder;
+import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.flow.set.path.flow.path.path.LinkSpec;
+import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.flow.set.path.flow.path.path.LinkSpecBuilder;
+//import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.flow.set.path.path.LinkSpecBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.port.rev130925.FlowPortStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,8 +82,8 @@ public class PathComputeFastFunction implements FastFunction {
 	public void run() {
 		LOG.info("run started");
 		Topology topology = getTopology();
-		FlowSetPath flowSetPath = computePathForFlow(topology);
-		writeToDataStore(flowSetPath);
+		FlowPath flowPath = computePathForFlow(topology);
+		writeToDataStore(flowPath);
 	}
 
 	private Topology getTopology() {
@@ -93,7 +101,7 @@ public class PathComputeFastFunction implements FastFunction {
 	}
 
 	// compute the path of the flow
-	public FlowSetPath computePathForFlow(Topology topology) {
+	public FlowPath computePathForFlow(Topology topology) {
 		if (topology == null) {
 			LOG.info("topology null");
 			return null;
@@ -102,11 +110,11 @@ public class PathComputeFastFunction implements FastFunction {
 		List<Link> path = shortestPath(topology, flow.getSrcIp(), flow.getDstIp());
 		System.out.println("Path computing result:" + path.get(0).getLinkId().toString() + ", "
 				+ path.get(1).getLinkId().toString());
-		FlowSetPath flowSetPath = Path2FlowSetPath(path);
-		return flowSetPath;
+		FlowPath flowPath = Path2FlowSetPath(path);
+		return flowPath;
 	}
 
-	public FlowSetPath Path2FlowSetPath(List<Link> path) {
+	public FlowPath Path2FlowSetPath(List<Link> path) {
 		List<LinkSpec> linkList = new ArrayList<>();
 		for (Link l : path) {
 			LinkSpecBuilder lsb = new LinkSpecBuilder();
@@ -119,11 +127,11 @@ public class PathComputeFastFunction implements FastFunction {
 		PathBuilder pathBuilder = new PathBuilder();
 		pathBuilder.setLinkSpec(linkList);
 		Path p = pathBuilder.build();
-		FlowSetPathBuilder flowSetPathBuilder = new FlowSetPathBuilder();
-		flowSetPathBuilder.setFlowSpec(flow);
-		flowSetPathBuilder.setPath(p);
-		FlowSetPath flowSetPath = flowSetPathBuilder.build();
-		return flowSetPath;
+		FlowPathBuilder flowPathBuilder = new FlowPathBuilder();
+		flowPathBuilder.setFlowSpec(flow);
+		flowPathBuilder.setPath(p);
+		FlowPath flowPath = flowPathBuilder.build();
+		return flowPath;
 	}
 
 	// compute the shortest path according to hop count
@@ -283,11 +291,20 @@ public class PathComputeFastFunction implements FastFunction {
 		return null;
 	}
 
-	private void writeToDataStore(FlowSetPath flowSetPath) {
-		InstanceIdentifier<FlowSetPath> flowSetPathIID = InstanceIdentifier.builder(FlowSetPath.class,
-				new FlowSetPathKey(flowSetPath.getId())).build();
+	private void writeToDataStore(FlowPath flowPath) {
+		FlowSetPath flowSetPath = null;
+		InstanceIdentifier<FlowSetPath> flowSetPathIID = InstanceIdentifier.builder(FlowSetPath.class).build();
+		InstanceIdentifier<FlowPath> flowPathIID = InstanceIdentifier.builder(FlowSetPath.class).child(FlowPath.class, new FlowPathKey(flowPath.getId())).build();
 		try {
-			fastDataStore.put(LogicalDatastoreType.OPERATIONAL, flowSetPathIID, flowSetPath);
+			flowSetPath = fastDataStore.read(LogicalDatastoreType.OPERATIONAL, flowSetPathIID);
+		} catch (ReadFailedException e) {
+			e.printStackTrace();
+		}
+		flowSetPath.getFlowPath().add(flowPath);
+		
+		try {
+//			fastDataStore.put(LogicalDatastoreType.OPERATIONAL, flowSetPathIID, flowSetPath.getFlowPath());
+			fastDataStore.put(LogicalDatastoreType.OPERATIONAL, flowPathIID, flowPath);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

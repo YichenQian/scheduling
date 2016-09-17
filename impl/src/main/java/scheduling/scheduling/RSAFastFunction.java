@@ -26,8 +26,11 @@ import java.util.Set;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.FlowSetPath;
-import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.flow.set.path.FlowSpec;
-import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.flow.set.path.path.LinkSpec;
+import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.flow.set.path.FlowPath;
+import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.flow.set.path.flow.path.FlowSpec;
+import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.flow.set.path.flow.path.path.LinkSpec;
+//import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.flow.set.path.FlowSpec;
+//import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.flow.set.path.path.LinkSpec;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link;
@@ -40,8 +43,7 @@ import com.sun.org.apache.bcel.internal.generic.NEW;
 public class RSAFastFunction implements FastFunction {
 	private final static Logger LOG = LoggerFactory.getLogger(RSAFastFunction.class);
 	private FastDataStore fastDataStore = null;
-	private List<FlowSpec> flowList = null;
-	private List<FlowSetPath> flowSetPathList = null;
+	private List<FlowPath> flowPaths = null;
 	private Map<LinkSim, List<String>> linkPathMap = new HashMap<>();
 	private Map<String, List<LinkSim>> pathLinkMap = new HashMap<>();
 	private Map<LinkSpec, List<String>> linkSpecPathMap = new HashMap<>();
@@ -83,7 +85,7 @@ public class RSAFastFunction implements FastFunction {
 	private void getFlowSetPath() {
 		InstanceIdentifier<FlowSetPath> flowSetPathIID = InstanceIdentifier.builder(FlowSetPath.class).build();
 		try {
-			flowSetPathList.add(fastDataStore.read(LogicalDatastoreType.OPERATIONAL, flowSetPathIID));
+			flowPaths = fastDataStore.read(LogicalDatastoreType.OPERATIONAL, flowSetPathIID).getFlowPath();
 		} catch (ReadFailedException e) {
 			e.printStackTrace();
 		}
@@ -92,23 +94,23 @@ public class RSAFastFunction implements FastFunction {
 	private void preprocessing() {
 
 		// construct linkPathMap
-		for (FlowSetPath flowSetPath : flowSetPathList) {
+		for (FlowPath flowPath : flowPaths) {
 			List<LinkSim> linkSims = new ArrayList<>();
-			for (LinkSpec l : flowSetPath.getPath().getLinkSpec()) {
+			for (LinkSpec l : flowPath.getPath().getLinkSpec()) {
 				List<String> paths = null;
 				if (!linkSpecPathMap.containsKey(l)) {
 					paths = new ArrayList<>();
-					paths.add(FlowSetPath2String(flowSetPath));
+					paths.add(FlowSetPath2String(flowPath));
 				} else {
 					paths = linkSpecPathMap.get(l);
-					paths.add(FlowSetPath2String(flowSetPath));
+					paths.add(FlowSetPath2String(flowPath));
 				}
 				linkSpecPathMap.put(l, paths);
 				
 				LinkSim linkSim = new LinkSim(l.getLinkId(), l.getSource(), l.getDestination(), 1, 1);
 				linkSims.add(linkSim);
 			}
-			pathLinkMap.put(FlowSetPath2String(flowSetPath), linkSims);
+			pathLinkMap.put(FlowSetPath2String(flowPath), linkSims);
 		}
 
 		// LinkSpec to LinkSim
@@ -120,8 +122,8 @@ public class RSAFastFunction implements FastFunction {
 		}
 	}
 
-	public String FlowSetPath2String(FlowSetPath flowSetPath) {
-		FlowSpec flowSpec = flowSetPath.getFlowSpec();
+	public String FlowSetPath2String(FlowPath flowPath) {
+		FlowSpec flowSpec = flowPath.getFlowSpec();
 		String string = flowSpec.getSrcIp() + "," + flowSpec.getDstIp() + "," + flowSpec.getSrcPort() + ","
 				+ flowSpec.getDstPort() + "," + flowSpec.getProtocol();
 		return string;

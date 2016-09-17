@@ -15,8 +15,8 @@ import javax.annotation.Nonnull;
 
 import fast.api.FastSystem;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.flow.set.path.FlowSpec;
-import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.flow.set.path.FlowSpecBuilder;
+//import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.flow.set.path.FlowSpec;
+//import org.opendaylight.yang.gen.v1.urn.fast.app.scheduling.rev160902.flow.set.path.FlowSpecBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
 
 import org.slf4j.Logger;
