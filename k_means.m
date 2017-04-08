@@ -2,10 +2,10 @@ function k_means
 
 clear;clc
 
-n = 5; %num of nodes
+n = 100; %num of nodes
 %A = [0,2,3,3,4; 3,0,1,2,3; 4,2,0,1,2; 3,2,1,0,1; 2,4,3,2,0]; %matrix of shortest path
-A = [0,2,3,3,4; 3,0,1,2,3; 4,2,0,1,3; 3,2,1,0,2; 2,4,3,2,0]; %matrix of shortest path
 %A = unidrnd(10,n,n)
+load('input_100_1.mat')
 [M,N] = size(A); %size of the matrix
 
 k = 2; %num of clusters
@@ -52,8 +52,13 @@ while (isequal(history_c,cluster_head)==0)
     end
 end
 
+sum_of_weight = 0;
+for i =1:k
+    index = find(result == i);
+    sum_of_weight = sum_of_weight + sum(A(index,cluster_head(i)));
+end
+
 result
 cluster_head
 first
-
-
+sum_of_weight
