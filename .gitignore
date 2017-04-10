@@ -22,6 +22,7 @@
 .project
 .settings
 .zsh*
+.asv
 Evaluations
 GPATH
 GRTAGS
