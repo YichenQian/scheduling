@@ -9,26 +9,56 @@ n = 100;
 % for i = 1:100
 %     A(i,i) = 0;
 % end
-load('input_100_2.mat');
+load('input_100_m2.mat');
 [~, n] = size(A); %num of nodes
 times = 0;
-k = 2; %num of clusters
-rounds = 1;
+k = 5; %num of clusters
+rounds = k*5;
 round = 0;
 min_sum = inf;
 min_result = [];
 f_ch = [];
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %random generate the graph
-A = inf(n,n);
-for i = 1:n
-    connect = unidrnd(n,1,5);
-    for j = 1:length(connect)
-        A(i,connect(j)) = unidrnd(20);
-        A(connect(j),i) = unidrnd(20);
-    end
-    A(i,i) = 0;
-end
+% A = inf(n,n);
+% load('temp_L.mat');
+% for i = 1:n
+%     for j = 1:n
+%         if L(i,j) == 1;
+%             A(i,j) = unidrnd(20);
+%         end
+%     end
+%     A(i,i) = 0;
+% end
+% 
+% for i = 1:n
+%     for j = 1:n
+%         [A(i,j),~] = dijkstra(A,i,j);
+%     end
+% end        
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% for i = 2:50
+%     A(i,1) = 1;
+%     A(1,i) = 1;
+% end
+% 
+% for i = 52:100
+%     A(i,51) = 1;
+%     A(51,i) = 1;
+% end
+
+%random generate the graph
+% A = inf(n,n);
+% for i = 1:n
+%     connect = unidrnd(n,1,5);
+%     for j = 1:length(connect)
+%         A(i,connect(j)) = unidrnd(20);
+%         A(connect(j),i) = unidrnd(20);
+%     end
+%     A(i,i) = 0;
+% end
 
 % for i = 1:n
 %     for j = 1:n
@@ -38,8 +68,11 @@ end
 
 while (round < rounds)
     cluster_head = unidrnd(n,1,k);
+    while (length(unique(cluster_head)) ~= length(cluster_head))
+        cluster_head = unidrnd(n,1,k);
+    end
     first = cluster_head;
-    cluster_head = [2,7];
+%     cluster_head = [2,60];
     result = zeros(n,1); %clustering result
     history_c = zeros(1,k); %the last clustering result
     num = zeros(1,k); %num of nodes in a cluster
@@ -82,11 +115,12 @@ while (round < rounds)
     if sum_of_weight < min_sum
         min_result = result;
         f_ch = cluster_head;
+        min_sum = sum_of_weight;
     end
     round = round + 1;
 end
 
-min_result
+min_result'
 first
 f_ch
 min_sum
