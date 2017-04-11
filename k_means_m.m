@@ -66,6 +66,9 @@ f_ch = [];
 %     end
 % end
 
+%random generate black node
+black_node = unidrnd(n,1,20);
+
 while (round < rounds)
     cluster_head = unidrnd(n,1,k);
     while (length(unique(cluster_head)) ~= length(cluster_head))
