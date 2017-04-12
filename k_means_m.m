@@ -1,4 +1,5 @@
 function k_means_m
+%choose the black node after k-means
 
 clear;
 clc;
@@ -68,6 +69,7 @@ f_ch = [];
 
 %random generate black node
 black_node = unidrnd(n,1,20);
+black_node = [1:5:100];
 
 while (round < rounds)
     cluster_head = unidrnd(n,1,k);
@@ -110,6 +112,7 @@ while (round < rounds)
     
     %Find the nearest black node
     
+    
     sum_of_weight = 0;
     for i =1:k
         sum_of_weight = sum_of_weight + sum(A(result == i,cluster_head(i)));
@@ -117,13 +120,17 @@ while (round < rounds)
     
     if sum_of_weight < min_sum
         min_result = result;
-        f_ch = cluster_head;
+        f_wch = cluster_head;
         min_sum = sum_of_weight;
     end
+    
+    f_ch  = f_wch
+    
     round = round + 1;
 end
 
 min_result'
 first
+f_wch
 f_ch
 min_sum
