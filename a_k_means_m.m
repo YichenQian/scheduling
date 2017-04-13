@@ -1,8 +1,5 @@
-function k_means_m
+function [min_sum] = a_k_means_m(input_ch, A)
 %choose the black node after k-means
-
-clear;
-clc;
 
 n = 100;
 %A = [0,2,3,3,4; 3,0,1,2,3; 4,2,0,1,2; 3,2,1,0,1; 2,4,3,2,0]; %matrix of shortest path
@@ -10,8 +7,8 @@ n = 100;
 % for i = 1:100
 %     A(i,i) = 0;
 % end
-load('input_100_m2.mat');
-[~, n] = size(A); %num of nodes
+% load('input_100_m2.mat');
+% [~, n] = size(A); %num of nodes
 times = 0;
 k = 2; %num of clusters
 rounds = k*5;
@@ -72,13 +69,14 @@ black_node = unidrnd(n,1,20);
 black_node = [1:5:100];
 
 while (round < rounds)
-    cluster_head = unidrnd(n,1,k);
-    while (length(unique(cluster_head)) ~= length(cluster_head))
-        cluster_head = unidrnd(n,1,k);
-    end
-    first = cluster_head;
-    cluster_head = [30,80];
-    result = zeros(n,1); %clustering result
+%     cluster_head = unidrnd(n,1,k);
+%     while (length(unique(cluster_head)) ~= length(cluster_head))
+%         cluster_head = unidrnd(n,1,k);
+%     end
+%     first = cluster_head;
+%     cluster_head = [30,80];
+    cluster_head = input_ch;
+    result = zeros(100,1); %clustering result
     history_c = zeros(1,k); %the last clustering result
     num = zeros(1,k); %num of nodes in a cluster
     
@@ -156,8 +154,3 @@ while (round < rounds)
     
     round = round + 1;
 end
-
-min_result'
-first
-f_ch
-min_sum
