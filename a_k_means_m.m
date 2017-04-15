@@ -69,13 +69,13 @@ black_node = unidrnd(n,1,20);
 black_node = [1:5:100];
 
 while (round < rounds)
-%     cluster_head = unidrnd(n,1,k);
-%     while (length(unique(cluster_head)) ~= length(cluster_head))
-%         cluster_head = unidrnd(n,1,k);
-%     end
+     cluster_head = unidrnd(n,1,k);
+     while (length(unique(cluster_head)) ~= length(cluster_head))
+         cluster_head = unidrnd(n,1,k);
+     end
 %     first = cluster_head;
 %     cluster_head = [30,80];
-    cluster_head = input_ch;
+%    cluster_head = input_ch;
     result = zeros(100,1); %clustering result
     history_c = zeros(1,k); %the last clustering result
     num = zeros(1,k); %num of nodes in a cluster
