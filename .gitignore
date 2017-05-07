@@ -1,0 +1,6 @@
+bare_conf.pdf
+*.aux
+*.bbl
+*.blg
+*.dvi
+*.log
