@@ -153,7 +153,7 @@ The edge weight $w_{i,j}=w_{j,i}$ ($i,j \in \{ 1,2,...,N\}$) represents the link
 The problem of splitting a network is a clustering problem. Since our goal is to reduce the signal power loss and improve the system performance, the objective of the problem is to minimize the total cost from each node to its corresponding CH. We use the network topology as input. (There are two kinds of nods in the network. One is the nodes that maintain the connectivity to the core controller (solid nodes). The other one is the nodes without connectivity to the core controller (hollow nodes).) The aim is to determine which nodes belong to a same cluster and which node to be the cluster head (CH) in this cluster. The problem has the following constraints.
 \begin{enumerate}
 \item The number of clusters is limited. This constraints the total bandwidth that the controller communicates with the CH. 
-\item Only the nodes that maintain the connectivity to the core controller (solid node for short) can be the CH of a cluster. This constraint can reduce the commnication cost to the core controller.
+\item Only the nodes that maintain the connectivity to the core controller can be the CH of a cluster. This constraint can reduce the commnication cost to the core controller.
 \item *The weight of an edge (one hop) in a cluster is limited. This ensures that the packet can be decoded correctly.
 \end{enumerate}
 
@@ -258,9 +258,9 @@ campare with other cluster algorithm
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=0.35\textwidth]{figures/k2}
-  \caption{Clustering Result (k=2)}\label{fig:digit}
+  \caption{Clustering Result (k=2)}\label{fig:k2}
   \includegraphics[width=0.35\textwidth]{figures/k3}
-  \caption{Clustering Result (k=3)}\label{fig:digit}
+  \caption{Clustering Result (k=3)}\label{fig:k3}
 \end{figure}
 
 \section{CONLUSION}
