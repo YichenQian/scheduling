@@ -60,16 +60,15 @@ nn = length(black_node);
 % black_node = unidrnd(n,1,20);
 % black_node = [1:5:100];
 
-for ii = 1 : nn-3
-    for jj = ii + 1 : nn-2
-        for kk = jj + 1 : nn-1
-            for ll = kk +1 :nn
-                cluster_head = [black_node(ii), black_node(jj), black_node(kk), black_node(ll)];
+for ii = 1 : nn - 2
+    for jj = ii + 1 : nn - 1
+        for kk = jj + 1 : nn
+%             for ll = kk +1 :nn
+                cluster_head = [black_node(ii), black_node(jj), black_node(kk)];
                 %     while (length(unique(cluster_head)) ~= length(cluster_head))
                 %         cluster_head = unidrnd(n,1,k);
                 %     end
                 num = zeros(1,k); %num of nodes in a cluster
-                
                 
                 %Clustering
                 [min_v,result] = min(A(:,cluster_head),[],2);
@@ -77,15 +76,15 @@ for ii = 1 : nn-3
                     num(i) = length(find(result == i));
                 end
                 %Load banlancing
-                for i = 1:n
-                    min_s = find(A(i,cluster_head) == min_v(i));
-                    if length(min_s)>1
-                        [~,pos] = min(num(min_s));
-                        num(result(i)) = num(result(i)) - 1;
-                        result(i) = pos;
-                        num(pos) = num(pos) + 1;
-                    end
-                end
+%                 for i = 1:n
+%                     min_s = find(A(i,cluster_head) == min_v(i));
+%                     if length(min_s)>1
+%                         [~,pos] = min(num(min_s));
+%                         num(result(i)) = num(result(i)) - 1;
+%                         result(i) = pos;
+%                         num(pos) = num(pos) + 1;
+%                     end
+%                 end
                 
                 
                 %     %Find the nearest black node
@@ -133,5 +132,5 @@ for ii = 1 : nn-3
             end
         end
     end
-end
+% end
 end

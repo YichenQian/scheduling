@@ -69,7 +69,7 @@ f_ch = [];
 
 while (round < rounds)
     cluster_head = randperm(70);
-    cluster_head = black_node(cluster_head(k));
+    cluster_head = black_node(cluster_head(1 : k));
     %     first = cluster_head;
     %     cluster_head = [30,80];
     %    cluster_head = input_ch;
@@ -102,7 +102,8 @@ while (round < rounds)
         for i = 1:k
             index = find(result == i);
             index_b = find(result(black_node) == i);
-            [~,pos] = min(sum(A(index,black_node(index_b))));
+%             [~,pos] = min(sum(A(index,black_node(index_b))));
+            [~,pos] = min(sum(A(index,black_node)));
             if isempty(pos)
                 pos = 1;
             end
