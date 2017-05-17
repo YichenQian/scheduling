@@ -1,4 +1,4 @@
-function [min_sum] = a_k_means_m(input_ch, A)
+function [min_sum, f_ch, f_bch] = a_k_means_m(black_node, A, k)
 %choose the black node after k-means
 
 n = 100;
@@ -10,8 +10,8 @@ n = 100;
 % load('input_100_m2.mat');
 % [~, n] = size(A); %num of nodes
 times = 0;
-k = 2; %num of clusters
-rounds = k*5;
+%k = 2; %num of clusters
+rounds = k*100;
 round = 0;
 min_sum = inf;
 min_result = [];
@@ -65,8 +65,8 @@ f_ch = [];
 % end
 
 %random generate black node
-black_node = unidrnd(n,1,20);
-black_node = [1:5:100];
+% black_node = unidrnd(n,1,20);
+% black_node = [1:5:100];
 
 while (round < rounds)
      cluster_head = unidrnd(n,1,k);
@@ -81,7 +81,7 @@ while (round < rounds)
     num = zeros(1,k); %num of nodes in a cluster
     
     %K-Means
-    while (isequal(history_c,cluster_head)==0 && times<=n^2)
+    while (isequal(history_c,cluster_head)==0 && times<=n*2)
         history_c = cluster_head;
         %Clustering
         [min_v,result] = min(A(:,cluster_head),[],2);
@@ -117,11 +117,14 @@ while (round < rounds)
         for i = 1 : length(b_arrange)
             w_arrange = temp(:,b_arrange(i)) == min_v;
             [~,pos] = min(temp(w_arrange,b_arrange(i)));
-            f_bch(w_arrange(pos)) = b_arrange(i);
-            w_arrange(pos) = [];
+            pp = find(w_arrange == 1);
+            pos = pp(pos);
+            f_bch(pos) = b_arrange(i);
+            w_arrange(pos) = 0;
             temp(w_arrange,b_arrange(i)) = inf;
             [~,f_bch(w_arrange)] = min(temp(w_arrange,:),[],2);
         end
+        [min_v,f_bch] = min(temp,[],2);
     end
     f_bch = black_node(f_bch);
     
