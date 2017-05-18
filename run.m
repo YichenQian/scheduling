@@ -6,7 +6,7 @@ m_r = [];
 n_r = [];
 o_r = [];
 n = 100;
-k = 5;
+k = 3;
 num_black = 60;
 load('input_100_1.mat');
 load('input_100_2.mat');
@@ -41,19 +41,19 @@ plot(x,m_r,'-r.',x,n_r,':k.',x,o_r,'-b.');
 title('Algorithm Performance');
 xlabel('Different Networks');
 ylabel('Total Cost');
-legend('Proposed algorithm','Another algorithm','Theoretical optimal value');
+legend('Another algorithm','Proposed algorithm','Theoretical optimal value');
 
 figure(2);
 plot(x,sort(m_r),'-r.',x,sort(n_r),':k.',x,sort(o_r),'-b.');
 title('Algorithm Performance');
 xlabel('Different Networks');
 ylabel('Total Cost');
-legend('Proposed algorithm','Another algorithm','Theoretical optimal value');
+legend('Another algorithm','Proposed algorithm','Theoretical optimal value');
 
 figure(3);
 plot(x,m_r(index),'-r.',x,n_r(index),':k.',x,o_r(index),'-b.');
 title('Algorithm Performance');
 xlabel('Different Networks');
 ylabel('Total Cost');
-legend('Proposed algorithm','Another algorithm','Theoretical optimal value');
+legend('Another algorithm','Proposed algorithm','Theoretical optimal value');
 

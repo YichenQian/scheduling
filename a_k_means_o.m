@@ -62,79 +62,79 @@ nn = length(black_node);
 
 A = A + A';
 
-for ii = 1 : nn - 4
-    for jj = ii + 1 : nn - 3
-        for kk = jj + 1 : nn - 2
-            for ll = kk +1 :nn - 1
-                for mm = kk +1 :nn
-                    cluster_head = [black_node(ii), black_node(jj), black_node(kk), black_node(ll), black_node(mm)];
-                    %     while (length(unique(cluster_head)) ~= length(cluster_head))
-                    %         cluster_head = unidrnd(n,1,k);
-                    %     end
-                    num = zeros(1,k); %num of nodes in a cluster
-                    
-                    %Clustering
-                    [min_v,result] = min(A(:,cluster_head),[],2);
-                    for i = 1:k
-                        num(i) = length(find(result == i));
-                    end
-                    %Load banlancing
-                    %                 for i = 1:n
-                    %                     min_s = find(A(i,cluster_head) == min_v(i));
-                    %                     if length(min_s)>1
-                    %                         [~,pos] = min(num(min_s));
-                    %                         num(result(i)) = num(result(i)) - 1;
-                    %                         result(i) = pos;
-                    %                         num(pos) = num(pos) + 1;
-                    %                     end
-                    %                 end
-                    
-                    
-                    %     %Find the nearest black node
-                    %     temp = A(cluster_head,black_node);
-                    %     [min_v,f_bch] = min(temp,[],2);
-                    %     while (length(f_bch) ~= length(unique(f_bch)))
-                    %         [m,n] = hist(f_bch,unique(f_bch));
-                    %         b_arrange = n(m>1);
-                    %         for i = 1 : length(b_arrange)
-                    %             w_arrange = min_v == b_arrange(i);
-                    %             [~,pos] = min(temp(w_arrange,b_arrange(i)));
-                    %             f_bch(w_arrange(pos)) = b_arrange(i);
-                    %             w_arrange(pos) = [];
-                    %             temp(w_arrange,b_arrange(i)) = inf;
-                    %             [~,f_bch(w_arrange)] = min(temp(w_arrange,:),[],2);
-                    %         end
-                    %     end
-                    %
-                    %     %Clustering
-                    %     [min_v,result] = min(A(:,f_bch),[],2);
-                    %     for i = 1:k
-                    %         num(i) = length(find(result == i));
-                    %     end
-                    %     %Load banlancing
-                    %     for i = 1:n
-                    %         min_s = find(A(i,f_bch) == min_v(i));
-                    %         if length(min_s)>1
-                    %             [~,pos] = min(num(min_s));
-                    %             num(result(i)) = num(result(i)) - 1;
-                    %             result(i) = pos;
-                    %             num(pos) = num(pos) + 1;
-                    %         end
-                    %     end
-                    
-                    sum_of_weight = 0;
-                    for i =1:k
-                        sum_of_weight = sum_of_weight + sum(A(result == i,cluster_head(i)));
-                    end
-                    
-                    if sum_of_weight < min_sum
-                        min_result = result;
-                        f_ch = cluster_head;
-                        min_sum = sum_of_weight;
-                    end
-                end
+for ii = 1 : nn - 2
+    for jj = ii + 1 : nn - 1
+        for kk = jj + 1 : nn
+            %             for ll = kk +1 :nn - 1
+            %                 for mm = kk +1 :nn
+            cluster_head = [black_node(ii), black_node(jj), black_node(kk)];
+            %     while (length(unique(cluster_head)) ~= length(cluster_head))
+            %         cluster_head = unidrnd(n,1,k);
+            %     end
+            num = zeros(1,k); %num of nodes in a cluster
+            
+            %Clustering
+            [min_v,result] = min(A(:,cluster_head),[],2);
+            for i = 1:k
+                num(i) = length(find(result == i));
+            end
+            %Load banlancing
+            %                 for i = 1:n
+            %                     min_s = find(A(i,cluster_head) == min_v(i));
+            %                     if length(min_s)>1
+            %                         [~,pos] = min(num(min_s));
+            %                         num(result(i)) = num(result(i)) - 1;
+            %                         result(i) = pos;
+            %                         num(pos) = num(pos) + 1;
+            %                     end
+            %                 end
+            
+            
+            %     %Find the nearest black node
+            %     temp = A(cluster_head,black_node);
+            %     [min_v,f_bch] = min(temp,[],2);
+            %     while (length(f_bch) ~= length(unique(f_bch)))
+            %         [m,n] = hist(f_bch,unique(f_bch));
+            %         b_arrange = n(m>1);
+            %         for i = 1 : length(b_arrange)
+            %             w_arrange = min_v == b_arrange(i);
+            %             [~,pos] = min(temp(w_arrange,b_arrange(i)));
+            %             f_bch(w_arrange(pos)) = b_arrange(i);
+            %             w_arrange(pos) = [];
+            %             temp(w_arrange,b_arrange(i)) = inf;
+            %             [~,f_bch(w_arrange)] = min(temp(w_arrange,:),[],2);
+            %         end
+            %     end
+            %
+            %     %Clustering
+            %     [min_v,result] = min(A(:,f_bch),[],2);
+            %     for i = 1:k
+            %         num(i) = length(find(result == i));
+            %     end
+            %     %Load banlancing
+            %     for i = 1:n
+            %         min_s = find(A(i,f_bch) == min_v(i));
+            %         if length(min_s)>1
+            %             [~,pos] = min(num(min_s));
+            %             num(result(i)) = num(result(i)) - 1;
+            %             result(i) = pos;
+            %             num(pos) = num(pos) + 1;
+            %         end
+            %     end
+            
+            sum_of_weight = 0;
+            for i =1:k
+                sum_of_weight = sum_of_weight + sum(A(result == i,cluster_head(i)));
+            end
+            
+            if sum_of_weight < min_sum
+                min_result = result;
+                f_ch = cluster_head;
+                min_sum = sum_of_weight;
             end
         end
     end
+    %         end
+    %     end
 end
 end
