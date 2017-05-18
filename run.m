@@ -7,8 +7,8 @@ n_r = [];
 o_r = [];
 n = 100;
 k = 3;
-load('input_100_m3.mat');
-load('input_100_m4.mat');
+load('input_100_1.mat');
+load('input_100_2.mat');
 
 while round < rounds
     round
@@ -18,15 +18,15 @@ while round < rounds
 %         black_node = unidrnd(n,1,20);
 %     end
     if round < rounds/2
-        [m_rr,~,~] = a_k_means_m(black_node, A3, k);
+        [m_rr,~,~] = a_k_means_m(black_node, A1, k);
         m_r = [m_r, m_rr]
-        n_r = [n_r, a_k_means_n(black_node, A3, k)]
-        o_r = [o_r, a_k_means_o(black_node, A3, k)]
+        n_r = [n_r, a_k_means_n(black_node, A1, k)]
+        o_r = [o_r, a_k_means_o(black_node, A1, k)]
     else
-        [m_rr,~,~] = a_k_means_m(black_node, A4, k);
+        [m_rr,~,~] = a_k_means_m(black_node, A2, k);
         m_r = [m_r, m_rr]
-        n_r = [n_r, a_k_means_n(black_node, A4, k)]
-        o_r = [o_r, a_k_means_o(black_node, A4, k)]
+        n_r = [n_r, a_k_means_n(black_node, A2, k)]
+        o_r = [o_r, a_k_means_o(black_node, A2, k)]
     end
     round = round + 1;
 end

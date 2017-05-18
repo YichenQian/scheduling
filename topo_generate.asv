@@ -25,8 +25,7 @@ for i = 1 : num
     AD(i, :) = AD(i, :) - power(i);
 end
 
-%normalization
-AD = AD - min(min(AD)) + 1;
+%norma
 
 %calculate the shortest path
 A = all_pair_dijkstra(AD);

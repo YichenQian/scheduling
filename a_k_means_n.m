@@ -103,7 +103,7 @@ while (round < rounds)
             index = find(result == i);
             index_b = find(result(black_node) == i);
 %             [~,pos] = min(sum(A(index,black_node(index_b))));
-            [~,pos] = min(sum(A(index,black_node)));
+            [~,pos] = min(sum(A(index,black_node(index_b))));
             if isempty(pos)
                 pos = 1;
             end
