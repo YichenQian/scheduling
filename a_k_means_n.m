@@ -10,11 +10,12 @@ function [min_sum] = a_k_means_n(black_node, A, k)
 % load('input_100_m2.mat');
 [~, n] = size(A); %num of nodes
 %k = 2; %num of clusters
-rounds = k*5;
+rounds = k*10;
 round = 0;
 min_sum = inf;
 min_result = [];
 f_ch = [];
+num_black = length(black_node);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %random generate the graph
@@ -67,8 +68,10 @@ f_ch = [];
 % black_node = unidrnd(n,1,20);
 % black_node = [1:5:100];
 
+A = A + A';
+
 while (round < rounds)
-    cluster_head = randperm(70);
+    cluster_head = randperm(num_black);
     cluster_head = black_node(cluster_head(1 : k));
     %     first = cluster_head;
     %     cluster_head = [30,80];
@@ -107,7 +110,8 @@ while (round < rounds)
             if isempty(pos)
                 pos = 1;
             end
-            cluster_head(i) = black_node(pos);
+            cluster_head(i) = black_node(index_b(pos));
+            %cluster_head(i) = black_node(pos);
         end
         times = times + 1;
         

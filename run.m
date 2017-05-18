@@ -6,14 +6,15 @@ m_r = [];
 n_r = [];
 o_r = [];
 n = 100;
-k = 3;
+k = 5;
+num_black = 60;
 load('input_100_1.mat');
 load('input_100_2.mat');
 
 while round < rounds
     round
     black_node = randperm(100);
-    black_node = black_node(1:70);
+    black_node = black_node(1:num_black);
 %     while (length(unique(black_node)) ~= length(black_node))
 %         black_node = unidrnd(n,1,20);
 %     end

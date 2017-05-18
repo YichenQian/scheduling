@@ -11,11 +11,12 @@ n = 100;
 % [~, n] = size(A); %num of nodes
 times = 0;
 %k = 2; %num of clusters
-rounds = k*100;
+rounds = k*10;
 round = 0;
 min_sum = inf;
 min_result = [];
 f_ch = [];
+num_black = length(black_node);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %random generate the graph
@@ -68,6 +69,8 @@ f_ch = [];
 % black_node = unidrnd(n,1,20);
 % black_node = [1:5:100];
 
+A = A + A';
+
 while (round < rounds)
      cluster_head = unidrnd(n,1,k);
      while (length(unique(cluster_head)) ~= length(cluster_head))
@@ -104,6 +107,8 @@ while (round < rounds)
             index = find(result == i);
             [~,pos] = min(sum(A(index,index)));
             cluster_head(i) = index(pos);
+%             [~,pos] = min(sum(A(index,:)));
+%             cluster_head(i) = pos;
         end
         times = times + 1;
     end
